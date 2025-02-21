@@ -7,3 +7,19 @@
 :root{
     --bg-clr:#52BDAA;
 }
+
+body{
+    scroll-behavior: smooth;
+}
+
+.clicked{
+    transition: all 300ms ease;
+    transform: translateX(-10px);
+    background-color: #52BDAA;
+    color: white;
+}
+
+.check{
+    transition: all 300ms ease-in-out;
+    color: black;
+}
