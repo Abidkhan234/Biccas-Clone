@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poppins:wght@400;500;600;700;800;900&display=swap");
+
+* {
+  font-family: "Poppins", serif;
+}
+
+.signIn-form {
+  transform: translateX(100%);
+  transition: all .5s linear !important;
+}
+
+.toggle-box-2 {
+  transform: translateX(-100%);
+  transition: all 0.5s linear !important;
+}
+
+.toggle-box-1 {
+  transition: all 0.5s linear !important;
+}
+
+.login-form {
+    transition: all 0.5s linear !important;
+}
+
+.main-container.check {
+
+  .toggle-box-1 {
+    transform: translateX(100%);
+  }
+
+   .login-form {
+    transform: translateX(-100%);
+  }
+
+   .signIn-form {
+    transform: translateX(0);
+  }
+
+   .toggle-box-2 {
+    transform: translateX(0);
+  }
+}
