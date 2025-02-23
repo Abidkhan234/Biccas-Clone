@@ -1,25 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
-*{
+* {
     font-family: "Poppins", serif;
 }
 
-:root{
-    --bg-clr:#52BDAA;
+:root {
+    --bg-clr: #52BDAA;
 }
 
-body{
+body {
     scroll-behavior: smooth;
 }
 
-.clicked{
+.clicked {
     transition: all 300ms ease;
     transform: translateX(-10px);
     background-color: #52BDAA;
     color: white;
 }
 
-.check{
+.check {
     transition: all 300ms ease-in-out;
     color: black;
+}
+
+.brand {
+    animation: slide 15s linear infinite;
+}
+
+.brand-container:hover > .brand{
+    animation-play-state: paused;
+}
+
+@keyframes slide {
+    to {
+        transform: translateX(-100%);
+    }
 }
