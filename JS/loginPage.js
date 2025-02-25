@@ -49,18 +49,99 @@ const passwordChecker = (v) => {
 
 const loginFormBtn = document.getElementById("login-btn");
 
-const signInFormBtn = document.getElementById("signIn-btn");
+const loginPasswordBox = document.getElementById("password");
 
-let uid = localStorage.getItem("uid");
+const loginEmailBox = document.getElementById("email");
+
+const uid = JSON.parse(localStorage.getItem("uid"));
 
 loginFormBtn.addEventListener("click", () => {
+
+    let messages =
+    {
+        email: "",
+        password: ""
+    };
+
     if (uid) {
-        
+
+        let data;
+
+        uid.forEach((v) => {
+            data = v;
+            return data
+        })
+
+        // For Email field checking
+        if (loginEmailBox.value.length === 0) {
+            messages.email = "Email is required";
+        } else if (loginEmailBox.value !== data.email) {
+            messages.email = "Invalid email";
+        }
+
+        // For Email field checking
+
+        // For Password field checking
+        if (loginPasswordBox.value.length === 0) {
+            messages.password = "Password is required";
+        } else if (loginPasswordBox.value !== data.password) {
+            messages.password = "Invalid Password";
+        }
+
+        // For Password field checking
+
+        // For showing error to user
+
+
+        if (messages.email || messages.password) {
+
+            const errorEle = document.querySelectorAll(".login-form .error p");
+
+            errorEle[0].parentElement.classList.remove("invisible");
+            errorEle[1].parentElement.classList.remove("invisible");
+
+            errorEle[0].innerHTML = messages.email;
+            errorEle[1].innerHTML = messages.password;
+
+            const div = document.querySelectorAll(".password-eye-btn-div");
+
+            if (errorEle[0].innerHTML !== "") {
+                div[0].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
+                div[0].classList.replace("top-[50%]", "top-[25%]")
+            } else {
+                div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+                div[0].classList.replace("top-[25%]", "top-[50%]")
+            }
+
+            if (errorEle[1].innerHTML !== "") {
+                div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
+                div[1].classList.replace("top-[50%]", "top-[25%]")
+            } else {
+                div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+                div[1].classList.replace("top-[25%]", "top-[50%]")
+            }
+
+            messages = {};
+
+        } else {
+            window.location.href = "/index.html";
+        }
+
+        // For showing error to user
+
     } else {
         alert("Plz create account first");
         container.classList.add("check");
         return;
     }
+})
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const signInFormBtn = document.getElementById("signIn-btn");
+
+signInFormBtn.addEventListener("click", () => {
+    
 })
 
 // For login and sign in fields check
