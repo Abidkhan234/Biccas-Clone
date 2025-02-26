@@ -47,15 +47,17 @@ const passwordChecker = (v) => {
 
 // For login and sign in fields check
 
+import { auth, createUserWithEmailAndPassword, db, doc, getDoc, setDoc } from "./FireBase.js";
+
 const loginFormBtn = document.getElementById("login-btn");
 
 const loginPasswordBox = document.getElementById("password");
 
 const loginEmailBox = document.getElementById("email");
 
-const uid = JSON.parse(localStorage.getItem("uid"));
+const data = JSON.parse(localStorage.getItem("data"));
 
-loginFormBtn.addEventListener("click", () => {
+loginFormBtn.addEventListener("click", (e) => {
 
     let messages =
     {
@@ -63,15 +65,8 @@ loginFormBtn.addEventListener("click", () => {
         password: ""
     };
 
-    if (uid) {
-
-        let data;
-
-        uid.forEach((v) => {
-            data = v;
-            return data
-        })
-
+    if (data) {
+    
         // For Email field checking
         if (loginEmailBox.value.length === 0) {
             messages.email = "Email is required";
@@ -90,58 +85,198 @@ loginFormBtn.addEventListener("click", () => {
 
         // For Password field checking
 
-        // For showing error to user
-
 
         if (messages.email || messages.password) {
-
-            const errorEle = document.querySelectorAll(".login-form .error p");
-
-            errorEle[0].parentElement.classList.remove("invisible");
-            errorEle[1].parentElement.classList.remove("invisible");
-
-            errorEle[0].innerHTML = messages.email;
-            errorEle[1].innerHTML = messages.password;
-
-            const div = document.querySelectorAll(".password-eye-btn-div");
-
-            if (errorEle[0].innerHTML !== "") {
-                div[0].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
-                div[0].classList.replace("top-[50%]", "top-[25%]")
-            } else {
-                div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-                div[0].classList.replace("top-[25%]", "top-[50%]")
-            }
-
-            if (errorEle[1].innerHTML !== "") {
-                div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
-                div[1].classList.replace("top-[50%]", "top-[25%]")
-            } else {
-                div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-                div[1].classList.replace("top-[25%]", "top-[50%]")
-            }
-
-            messages = {};
-
+            errorShowingFunc(e.target.parentElement.parentElement.classList[0], undefined, messages);
         } else {
             window.location.href = "/index.html";
         }
-
-        // For showing error to user
 
     } else {
         alert("Plz create account first");
         container.classList.add("check");
         return;
     }
-})
+
+});
+
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const signInFormBtn = document.getElementById("signIn-btn");
 
+const fullNameBox = document.getElementById("fullName");
+
+const signInEmailBox = document.getElementById("signInemail");
+
+const signInPasswordBox = document.getElementById("signInpassword");
+
 signInFormBtn.addEventListener("click", () => {
-    
-})
+
+    let messages =
+    {
+        fullName: "",
+        email: "",
+        password: ""
+    };
+
+    // For User Name field checking
+
+    if (fullNameBox.value.length === 0) {
+        messages.fullName = "Name is required";
+    } else if (fullNameBox.value.length < 4) {
+        messages.fullName = "Name must be atleast 4 character long.";
+    }
+
+    // For User Name field checking
+
+    // For Email field checking
+    if (signInEmailBox.value.length === 0) {
+        messages.email = "Email is required.";
+    } else if (!emailPattern.test(signInEmailBox.value)) {
+        messages.email = "Please enter a valid email address.";
+    }
+
+    // For Email field checking
+
+    // For Password field checking
+    if (signInPasswordBox.value.length === 0) {
+        messages.password = "Password is required.";
+    } else if (signInPasswordBox.value.length < 6) {
+        messages.password = "Password must be atleast 6 character long.";
+    }
+
+    // For Password field checking
+
+    if (messages.email || messages.password || messages.fullName) {
+        errorShowingFunc(undefined, messages, undefined);
+    }
+    else {
+        fireBaseFunc(signInEmailBox.value, signInPasswordBox.value, fullNameBox.value)
+        signInEmailBox.value = "";
+        signInPasswordBox.value = "";
+        fullNameBox.value = "";
+    }
+});
 
 // For login and sign in fields check
+
+const errorShowingFunc = (v, messages1, messages2) => {
+
+    if (v === "login-form") {
+        // For Login
+        const errorEle = document.querySelectorAll(".login-form .error p");
+
+        errorEle[0].parentElement.classList.remove("invisible");
+        errorEle[1].parentElement.classList.remove("invisible");
+
+        errorEle[0].innerHTML = messages2.email;
+        errorEle[1].innerHTML = messages2.password;
+
+        const div = document.querySelectorAll(".password-eye-btn-div");
+
+        if (errorEle[0].innerHTML !== "") {
+            div[0].classList
+                .replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[0].classList.replace("top-[50%]", "top-[25%]");
+        } else {
+            div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[0].classList.replace("top-[25%]", "top-[50%]");
+        }
+
+        if (errorEle[1].innerHTML !== "") {
+            div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[1].classList.replace("top-[50%]", "top-[25%]")
+        } else {
+            div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[1].classList.replace("top-[25%]", "top-[50%]")
+        }
+
+        messages2 = {};
+        // For Login
+    } else {
+        // For SignIn
+        const errorEle = document.querySelectorAll(".signIn-form .error p");
+
+        errorEle[0].parentElement.classList.remove("invisible");
+        errorEle[1].parentElement.classList.remove("invisible");
+        errorEle[2].parentElement.classList.remove("invisible");
+
+        errorEle[0].innerHTML = messages1.fullName;
+        errorEle[1].innerHTML = messages1.email;
+        errorEle[2].innerHTML = messages1.password;
+
+        const div = document.querySelectorAll(".signIn-form .password-eye-btn-div");
+
+        if (errorEle[0].innerHTML !== "") {
+            div[0].classList
+                .replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[0].classList.replace("top-[50%]", "top-[25%]");
+        } else {
+            div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[0].classList.replace("top-[25%]", "top-[50%]");
+        }
+
+        if (errorEle[1].innerHTML !== "") {
+            div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[1].classList.replace("top-[50%]", "top-[25%]")
+        } else {
+            div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[1].classList.replace("top-[25%]", "top-[50%]")
+        }
+
+
+        if (errorEle[2].innerHTML !== "") {
+            div[2].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[2].classList.replace("top-[50%]", "top-[25%]")
+        } else {
+            div[2].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[2].classList.replace("top-[25%]", "top-[50%]")
+        }
+
+        // For SignIn
+        messages1 = {};
+    }
+
+}
+
+const fireBaseFunc = (v1, v2, v3) => {
+
+    createUserWithEmailAndPassword(auth, v1, v2)
+
+        .then(async (userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+
+            let uid = user.uid;
+            // ...
+
+            try {
+
+                await setDoc(doc(db, `${v3}`, uid), {
+                    fullName: v3,
+                    email: v1,
+                    password: v2,
+                });
+
+                const docRef = doc(db, `${v3}`, uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    localStorage.setItem("data", JSON.stringify(docSnap.data()))
+                } else {
+                    console.log("No such document!");
+                }
+
+            } catch (error) {
+                console.log(error);
+            }
+
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(error);
+        });
+
+}
