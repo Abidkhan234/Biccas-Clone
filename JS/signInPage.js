@@ -1,3 +1,5 @@
+import { auth, createUserWithEmailAndPassword, db, doc, getDoc, setDoc } from "./FireBase.js";
+
 // For password check
 
 const passwordEyeBtn = document.querySelectorAll(".password-eye-btn");
@@ -28,58 +30,69 @@ const passwordChecker = (v) => {
 
 // For password check
 
-// For login and sign in fields check
 
-const loginFormBtn = document.getElementById("login-btn");
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const loginPasswordBox = document.getElementById("password");
+const signInFormBtn = document.getElementById("signIn-btn");
 
-const loginEmailBox = document.getElementById("email");
+const fullNameBox = document.getElementById("fullName");
 
-const data = JSON.parse(localStorage.getItem("data"));
+const signInEmailBox = document.getElementById("signInemail");
 
-loginFormBtn.addEventListener("click", (e) => {
+const signInPasswordBox = document.getElementById("signInpassword");
+
+signInFormBtn.addEventListener("click", () => {
 
     let messages =
     {
+        fullName: "",
         email: "",
         password: ""
     };
 
-    if (data) {
+    // For User Name field checking
 
-        // For Email field checking
-        if (loginEmailBox.value.length === 0) {
-            messages.email = "Email is required";
-        } else if (loginEmailBox.value !== data.email) {
-            messages.email = "Invalid email";
-        }
-
-        // For Email field checking
-
-        // For Password field checking
-        if (loginPasswordBox.value.length === 0) {
-            messages.password = "Password is required";
-        } else if (loginPasswordBox.value !== data.password) {
-            messages.password = "Invalid Password";
-        }
-
-        // For Password field checking
-
-
-        if (messages.email || messages.password) {
-            errorShowingFunc(e.target.parentElement.parentElement.classList[0], undefined, messages);
-        } else {
-            window.location.href = "/index.html";
-        }
-
-    } else {
-        alert("Plz create account first");
-        container.classList.add("check");
-        return;
+    if (fullNameBox.value.length === 0) {
+        messages.fullName = "Name is required";
+    } else if (fullNameBox.value.length < 4) {
+        messages.fullName = "Name must be atleast 4 character long.";
     }
 
+    // For User Name field checking
+
+    // For Email field checking
+    if (signInEmailBox.value.length === 0) {
+        messages.email = "Email is required.";
+    } else if (!emailPattern.test(signInEmailBox.value)) {
+        messages.email = "Please enter a valid email address.";
+    }
+
+    // For Email field checking
+
+    // For Password field checking
+    if (signInPasswordBox.value.length === 0) {
+        messages.password = "Password is required.";
+    } else if (signInPasswordBox.value.length < 6) {
+        messages.password = "Password must be atleast 6 character long.";
+    }
+
+    // For Password field checking
+
+    if (messages.email || messages.password || messages.fullName) {
+        errorShowingFunc(undefined, messages, undefined);
+    }
+    else {
+        fireBaseFunc(signInEmailBox.value, signInPasswordBox.value, fullNameBox.value)
+        signInEmailBox.value = "";
+        signInPasswordBox.value = "";
+        fullNameBox.value = "";
+        container.classList.remove("check");
+
+        document.querySelector(".login-form").location.reload()
+    }
 });
+
+// For login and sign in fields check
 
 const errorShowingFunc = (v, messages1, messages2) => {
 
@@ -158,4 +171,8 @@ const errorShowingFunc = (v, messages1, messages2) => {
         messages1 = {};
     }
 
+}
+
+const fireBaseFunc = (v1, v2, v3) => {
+    
 }

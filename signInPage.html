@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+
+    <title>Sign-In</title>
 
     <link
       rel="stylesheet"
@@ -17,28 +18,49 @@
 
     <link rel="stylesheet" href="./css/loginPage.css" />
   </head>
-
   <body>
     <div class="flex h-screen justify-center items-center overflow-hidden">
       <div
         class="main-container relative w-full h-full max-w-[700px] max-h-[450px] max-[520px]:max-h-full sm:rounded-xl shadow-2xl overflow-hidden"
       >
         <div
-          class="login-form absolute top-0 left-0 max-[520px]:h-[80%] h-full max-[520px]:w-full w-[50%] py-3.5 px-7 flex flex-col gap-5 justify-center"
+          class="signIn-form absolute top-0 right-0 h-full max-[520px]:w-full w-[50%] py-3.5 md:px-7 px-4 flex flex-col justify-end gap-4"
         >
           <h1
-            class="text-3xl font-semibold text-[#52BDAA] text-center tracking-wider mb-1"
+            class="md:text-3xl text-2xl max-[520px]:text-3xl font-semibold text-[#52BDAA] text-center tracking-wider mb-2"
           >
-            Login
+            Create Account
           </h1>
 
           <div class="input-group relative">
             <div>
               <input
+                type="text"
+                id="fullName"
+                placeholder="Enter Name"
+                class="bg-[#ccc] w-full px-3.5 pr-7 py-2.5 rounded-lg font-medium text-sm outline-0"
+                required
+                autocomplete="off"
+              />
+              <div class="error ms-1 invisible">
+                <p class="text-sm text-red-600"></p>
+              </div>
+            </div>
+            <div
+              class="password-eye-btn-div absolute top-[50%] right-2 translate-y-[-50%]"
+            >
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+
+          <div class="input-group relative">
+            <div>
+              <input
                 type="email"
-                id="email"
+                id="signInemail"
                 placeholder="Enter Email"
                 class="bg-[#ccc] w-full px-3.5 pr-7 py-2.5 rounded-lg font-medium text-sm outline-0"
+                required
                 autocomplete="off"
               />
               <div class="error ms-1 invisible">
@@ -56,20 +78,21 @@
             <div>
               <input
                 type="password"
-                id="password"
+                id="signInpassword"
                 placeholder="Enter Password"
+                required
                 class="bg-[#ccc] relative w-full px-3.5 pr-7 py-2.5 rounded-lg font-medium text-sm outline-0 password"
               />
-
               <div class="error ms-1 invisible">
                 <p class="text-sm text-red-600"></p>
               </div>
             </div>
             <div
-              class="password-eye-btn-div absolute top-[50%] right-2 translate-y-[-50%]"
+              class="password-eye-btn-div absolute top-[50%] right-2 translate-y-[-50%] z-10"
             >
               <button class="cursor-pointer password-eye-btn">
                 <i class="fas fa-eye-slash"></i>
+                <i class="fas fa-eye" style="display: none"></i>
               </button>
             </div>
           </div>
@@ -77,20 +100,13 @@
           <div class="">
             <button
               class="bg-[#52BDAA] w-full py-2 rounded-lg font-medium tracking-wide text-white cursor-pointer"
-              id="login-btn"
+              id="signIn-btn"
             >
-              Login
+              Create Account
             </button>
           </div>
 
-          <div class="">
-            <p class="text-sm font-medium">
-              Don't have an account
-              <a href="./signInPage.html" class="underline">Click here!</a>
-            </p>
-          </div>
-
-          <div class="social-icons flex gap-5 justify-center flex-wrap mt-2">
+          <div class="social-icons flex gap-7 justify-center flex-wrap mt-2">
             <a
               href="#"
               class="text-lg px-2 py-1 rounded-lg text-[#52BDAA] border-2 border-[#52BDAA]"
@@ -108,25 +124,24 @@
             ></a>
           </div>
         </div>
-
         <div
-          class="toggle-box-1 absolute max-[520px]:bottom-0 max-[520px]:left-0 sm:top-0 right-0 bg-[#52BDAA] max-[520px]:h-[30%] h-full max-[520px]:w-full w-[50%] flex flex-col justify-center items-center gap-4"
+          class="toggle-box-2 absolute top-0 left-0 bg-[#52BDAA] max-[520px]:h-[30%] h-full max-[520px]:w-full w-[50%] flex flex-col justify-center items-center max-[520px]:gap-2 gap-4"
           style="
-            border-top-left-radius: 150px;
-            border-bottom-left-radius: 150px;
+            border-top-right-radius: 150px;
+            border-bottom-right-radius: 150px;
           "
         >
           <h1 class="max-[600px]:text-3xl text-4xl font-semibold text-white">
-            Hello, Friend!
+            Welcome Back!
           </h1>
-          <p class="font-medium text-white max-[600px]:text-sm text-lg">
-            Don't have an account
+          <p class="font-medium text-white text-lg max-[600px]:text-sm">
+            Already have an account
           </p>
-          <a href="./signInPage.html"
+          <a href="./login.html"
             ><button
-              class="sign-in bg-white max-[600px]:px-4 px-8 py-2 rounded-lg font-medium cursor-pointer max-[600px]:text-sm"
+              class="login bg-white px-8 py-2 rounded-lg font-medium cursor-pointer max-[600px]:text-sm max-[600px]:px-4"
             >
-              Create account
+              Sign Up
             </button>
           </a>
         </div>
@@ -134,5 +149,5 @@
     </div>
   </body>
 
-  <script src="./JS/loginPage.js" type="module"></script>
+  <script src="./JS/signInPage.js" type="module"></script>
 </html>
