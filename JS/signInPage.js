@@ -41,7 +41,7 @@ const signInEmailBox = document.getElementById("signInemail");
 
 const signInPasswordBox = document.getElementById("signInpassword");
 
-signInFormBtn.addEventListener("click", () => {
+signInFormBtn.addEventListener("click", async () => {
 
     let messages =
     {
@@ -82,13 +82,12 @@ signInFormBtn.addEventListener("click", () => {
         errorShowingFunc(undefined, messages, undefined);
     }
     else {
-        fireBaseFunc(signInEmailBox.value, signInPasswordBox.value, fullNameBox.value)
+
+        fireBaseFunc(signInEmailBox.value, signInPasswordBox.value, fullNameBox.value);
+
         signInEmailBox.value = "";
         signInPasswordBox.value = "";
         fullNameBox.value = "";
-        container.classList.remove("check");
-
-        document.querySelector(".login-form").location.reload()
     }
 });
 
@@ -174,5 +173,27 @@ const errorShowingFunc = (v, messages1, messages2) => {
 }
 
 const fireBaseFunc = (v1, v2, v3) => {
-    
+    // For Sign Up
+    createUserWithEmailAndPassword(auth, v1, v2)
+        .then((userCredential) => {
+
+            const user = userCredential.user;
+
+            console.log(user);
+
+            localStorage.setItem("uid", user.uid)
+            localStorage.setItem("email", v1)
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // ..
+
+            console.log(error);
+
+        });
+    // For Sign Up
+
+
+
 }
