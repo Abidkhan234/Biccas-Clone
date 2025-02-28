@@ -30,11 +30,7 @@ const passwordChecker = (v) => {
 
 // For login and sign in fields check
 
-import { auth, signInWithEmailAndPassword } from "./FireBase.js";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const ALLOWED_DOMAINS = '.com';
+import { auth, db, doc, getDoc, signInWithEmailAndPassword } from "./FireBase.js";
 
 const loginFormBtn = document.getElementById("login-btn");
 
@@ -42,7 +38,10 @@ const loginPasswordBox = document.getElementById("password");
 
 const loginEmailBox = document.getElementById("email");
 
-const uid = localStorage.getItem("uid");
+const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+;
+
+const isLogged = localStorage.getItem("isLogged");
 
 loginFormBtn.addEventListener("click", (e) => {
 
@@ -52,11 +51,11 @@ loginFormBtn.addEventListener("click", (e) => {
         password: ""
     };
 
-    if (uid) {
+    if (isLogged) {
 
         if (loginEmailBox.value.length === 0) {
             messages.email = "Email is required";
-        } else if (!EMAIL_PATTERN.test(loginEmailBox.value)) {
+        } else if (!emailRegex.test(loginEmailBox.value)) {
             messages.email = "Invalid email format";
         }
 
@@ -80,14 +79,14 @@ loginFormBtn.addEventListener("click", (e) => {
 
 });
 
-
 const fireBaseFunc = (v1, v2, messages) => {
 
     signInWithEmailAndPassword(auth, v1, v2)
-        .then((userCredential) => {
+        .then(async (userCredential) => {
 
             const user = userCredential.user;
-            // For resetting
+
+            // For resetting            
 
             loginEmailBox.value = "";
             loginPasswordBox.value = "";
@@ -95,20 +94,39 @@ const fireBaseFunc = (v1, v2, messages) => {
             errorShowingFunc(messages);
             // For resetting
 
-            setTimeout(() => {
-                window.location.href = "./index.html";
-            }, 1000);
+            try {
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    let data;
+
+                    data = docSnap.data();
+
+                    localStorage.setItem("userData", JSON.stringify(data));
+
+                    setTimeout(() => {
+                        window.location.href = "./index.html";
+                    }, 1000);
+
+                } else {
+                    // docSnap.data() will be undefined in this case
+                    console.log("No such document!");
+                }
+            } catch (error) {
+                console.log(error);
+            }
 
         })
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
 
+            console.log(errorCode);
+
             // For resetting
             errorShowingFunc(messages, errorCode);
             // For resetting
-
-
         });
 
 }
@@ -117,23 +135,50 @@ const fireBaseFunc = (v1, v2, messages) => {
 const errorShowingFunc = (messages2, error) => {
 
     if (error) {
+
+        if (error.includes("auth/invalid-email")) {
+            messages2.email = "Invalid Email";
+        }
+
+        if (error.includes("auth/invalid-credential")) {
+            messages2.password = "Invalid Password";
+        }
         // For Login
         const errorEle = document.querySelectorAll(".login-form .error p");
 
         errorEle[0].parentElement.classList.remove("invisible");
         errorEle[1].parentElement.classList.remove("invisible");
 
-        if (error.includes("auth/invalid-email")) {
-            messages2.email = "Invalid Email";
+        errorEle[0].innerHTML = messages2.email;
+        errorEle[1].innerHTML = messages2.password;
+
+        const div = document.querySelectorAll(".password-eye-btn-div");
+
+        if (errorEle[0].innerHTML !== "") {
+            div[0].classList
+                .replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[0].classList.replace("top-[50%]", "top-[25%]");
         } else {
-            messages2.email = "";
+            div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[0].classList.replace("top-[25%]", "top-[50%]");
         }
 
-        if (error.includes("auth/invalid-credential")) {
-            messages2.password = "Invalid Password";
+        if (errorEle[1].innerHTML !== "") {
+            div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
+            div[1].classList.replace("top-[50%]", "top-[25%]")
         } else {
-            messages2.password = "";
+            div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
+            div[1].classList.replace("top-[25%]", "top-[50%]")
         }
+
+        // For Login
+
+    } else {
+        // For Login
+        const errorEle = document.querySelectorAll(".login-form .error p");
+
+        errorEle[0].parentElement.classList.remove("invisible");
+        errorEle[1].parentElement.classList.remove("invisible");
 
         errorEle[0].innerHTML = messages2.email;
         errorEle[1].innerHTML = messages2.password;
@@ -160,35 +205,5 @@ const errorShowingFunc = (messages2, error) => {
         messages2.email = "";
         messages2.password = "";
         // For Login
-
-    } else {
-        const errorEle = document.querySelectorAll(".login-form .error p");
-
-        errorEle[0].parentElement.classList.remove("invisible");
-        errorEle[1].parentElement.classList.remove("invisible");
-
-        errorEle[0].innerHTML = messages2.email;
-        errorEle[1].innerHTML = messages2.password;
-
-        const div = document.querySelectorAll(".password-eye-btn-div");
-
-        if (errorEle[0].innerHTML !== "") {
-            div[0].classList
-                .replace("translate-y-[-50%]", "translate-y-[-25%]")
-            div[0].classList.replace("top-[50%]", "top-[25%]");
-        } else {
-            div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-            div[0].classList.replace("top-[25%]", "top-[50%]");
-        }
-
-        if (errorEle[1].innerHTML !== "") {
-            div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
-            div[1].classList.replace("top-[50%]", "top-[25%]")
-        } else {
-            div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-            div[1].classList.replace("top-[25%]", "top-[50%]")
-        }
-
-        return
     }
 }
