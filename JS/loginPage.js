@@ -58,7 +58,7 @@ const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\")
 
 const passwordRegex = /^(?=.*[0-9])[a-zA-Z0-9]{6,16}$/;
 
-import { auth, createUserWithEmailAndPassword, db, doc, getDoc, setDoc, signInWithEmailAndPassword } from "./fireBase.js";
+import { auth, createUserWithEmailAndPassword, db, doc, getDoc, setDoc, signInWithEmailAndPassword } from "./FireBase.js";
 
 signInBtn.addEventListener("click", () => signInChecking());
 
