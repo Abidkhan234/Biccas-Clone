@@ -1,3 +1,12 @@
+const container = document.querySelector(".main-container");
+
+const toggleBtn1 = document.querySelector(".toggle-box-1 button");
+const toggleBtn2 = document.querySelector(".toggle-box-2 button");
+
+toggleBtn1.addEventListener("click", () => container.classList.add("check"));
+
+toggleBtn2.addEventListener("click", () => container.classList.remove("check"));
+
 // For password check
 
 const passwordEyeBtn = document.querySelectorAll(".password-eye-btn");
@@ -28,182 +37,182 @@ const passwordChecker = (v) => {
 
 // For password check
 
-// For login and sign in fields check
+// For FireBase Sign-Up
 
-import { auth, db, doc, getDoc, signInWithEmailAndPassword } from "./FireBase.js";
-
-const loginFormBtn = document.getElementById("login-btn");
+const loginEmailBox = document.getElementById("email");
 
 const loginPasswordBox = document.getElementById("password");
 
-const loginEmailBox = document.getElementById("email");
+const signInEmailBox = document.getElementById("signInemail");
+
+const fullNameBox = document.getElementById("fullName");
+
+const signInPasswordBox = document.getElementById("signInpassword");
+
+const signInBtn = document.getElementById("signIn-btn");
+
+const loginBtn = document.getElementById("login-btn");
 
 const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 ;
 
-const isLogged = localStorage.getItem("isLogged");
+const passwordRegex = /^(?=.*[0-9])[a-zA-Z0-9]{6,16}$/;
 
-loginFormBtn.addEventListener("click", (e) => {
+import { auth, createUserWithEmailAndPassword, db, doc, getDoc, setDoc, signInWithEmailAndPassword } from "./fireBase.js";
 
-    let messages =
-    {
-        email: "",
-        password: ""
-    };
+signInBtn.addEventListener("click", () => signInChecking());
 
-    if (isLogged) {
+loginBtn.addEventListener("click", () => loginChecking());
 
-        if (loginEmailBox.value.length === 0) {
-            messages.email = "Email is required";
-        } else if (!emailRegex.test(loginEmailBox.value)) {
-            messages.email = "Invalid email format";
-        }
+const errorFunc = (message, duration, color) => {
 
-        if (loginPasswordBox.value.length === 0) {
-            messages.password = "Password is required";
-        }
-
-        // For Email field checking
-
-        if (messages.email || messages.password) {
-            errorShowingFunc(messages);
-        } else {
-            fireBaseFunc(loginEmailBox.value, loginPasswordBox.value, messages);
-        }
-
-    } else {
-        alert("Plz create account first");
-        window.location.href = "./signInPage.html";
-        return;
+    if (message === "auth/email-already-in-use") {
+        message = "Email already in use.";
+    } else if (message === "auth/invalid-credential") {
+        message = "Invalid Email OR Password.";
     }
 
-});
+    Toastify({
 
-const fireBaseFunc = (v1, v2, messages) => {
+        text: message,
 
-    signInWithEmailAndPassword(auth, v1, v2)
-        .then(async (userCredential) => {
+        duration: duration,
 
-            const user = userCredential.user;
+        gravity: "top", // `top` or `bottom`
+        position: "center", // `left`, `center` or `right`
 
-            // For resetting            
+        style: {
+            background: color,
+        }
 
-            loginEmailBox.value = "";
-            loginPasswordBox.value = "";
+    }).showToast();
 
-            errorShowingFunc(messages);
-            // For resetting
+}
 
-            try {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
+const signInChecking = () => {
 
-                if (docSnap.exists()) {
-                    let data;
+    if (signInEmailBox.value == "" && signInPasswordBox.value == "" && fullNameBox.value == "") {
+        errorFunc("All fields are mandatory.", 2000, "red");
+    } else if (fullNameBox.value.length < 3) {
+        errorFunc("Incorrect user name.", 2000, "red");
+    } else if (!emailRegex.test(signInEmailBox.value)) {
+        errorFunc("Invalid email format.", 2000, "red");
+    } else if (!passwordRegex.test(signInPasswordBox.value)) {
+        errorFunc("Password must 6 character long.", 4000, "red");
+    } else {
 
-                    data = docSnap.data();
+        createUserWithEmailAndPassword(auth, signInEmailBox.value, signInPasswordBox.value)
 
-                    localStorage.setItem("userData", JSON.stringify(data));
+            .then(async (userCredential) => {
+                // Signed up 
+                const user = userCredential.user;
+                // ...
 
-                    setTimeout(() => {
-                        window.location.href = "./index.html";
-                    }, 1000);
 
-                } else {
-                    // docSnap.data() will be undefined in this case
-                    console.log("No such document!");
+                // For setting FireBase
+                try {
+                    await setDoc(doc(db, "users", user.uid), {
+                        email: signInEmailBox.value,
+                        fullName: fullNameBox.value
+                    });
+
+                    errorFunc("Signed in successfully.", 3000, "green");
+
+                    localStorage.setItem("uid", user.uid);
+
+                    signInEmailBox.value = "";
+                    fullNameBox.value = "";
+                    signInPasswordBox.value = "";
+
+
+                    container.classList.remove("check");
+
+                } catch (error) {
+                    console.log(error);
                 }
-            } catch (error) {
-                console.log(error);
-            }
+                // For setting FireBase
 
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
+            })
+            .catch((error) => {
 
-            console.log(errorCode);
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ..
 
-            // For resetting
-            errorShowingFunc(messages, errorCode);
-            // For resetting
-        });
+                errorFunc(`${errorCode}`, 2000, "red")
+
+                return;
+            });
+
+    }
 
 }
 
+// For FireBase Sign-Up
 
-const errorShowingFunc = (messages2, error) => {
+// For FireBase Login
 
-    if (error) {
+const loginChecking = () => {
 
-        if (error.includes("auth/invalid-email")) {
-            messages2.email = "Invalid Email";
-        }
+    const uid = localStorage.getItem("uid");
 
-        if (error.includes("auth/invalid-credential")) {
-            messages2.password = "Invalid Password";
-        }
-        // For Login
-        const errorEle = document.querySelectorAll(".login-form .error p");
+    if (uid) {
 
-        errorEle[0].parentElement.classList.remove("invisible");
-        errorEle[1].parentElement.classList.remove("invisible");
 
-        errorEle[0].innerHTML = messages2.email;
-        errorEle[1].innerHTML = messages2.password;
-
-        const div = document.querySelectorAll(".password-eye-btn-div");
-
-        if (errorEle[0].innerHTML !== "") {
-            div[0].classList
-                .replace("translate-y-[-50%]", "translate-y-[-25%]")
-            div[0].classList.replace("top-[50%]", "top-[25%]");
+        if (loginPasswordBox.value == "" && loginEmailBox.value == "") {
+            errorFunc("All fields are mandatory.", 2000, "red");
+        } else if (!emailRegex.test(loginEmailBox.value)) {
+            errorFunc("Invalid email format.", 2000, "red");
         } else {
-            div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-            div[0].classList.replace("top-[25%]", "top-[50%]");
-        }
 
-        if (errorEle[1].innerHTML !== "") {
-            div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
-            div[1].classList.replace("top-[50%]", "top-[25%]")
-        } else {
-            div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-            div[1].classList.replace("top-[25%]", "top-[50%]")
-        }
+            signInWithEmailAndPassword(auth, loginEmailBox.value, loginPasswordBox.value)
+                .then(async (userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+                    // ...
 
-        // For Login
+                    try {
+
+                        let data;
+
+                        const docRef = doc(db, "users", user.uid);
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            data = docSnap.data();
+                        } else {
+                            errorFunc("No user available.", 2000, "red");
+                        }
+
+                        localStorage.setItem("Data", JSON.stringify(data));
+
+                        loginEmailBox.value = "";
+                        loginPasswordBox.value = "";
+
+                        errorFunc("Logged in successfully.", 2000, "green");
+
+                    } catch (error) {
+                        console.log(error);
+                        errorFunc("An error occurred while checking the email.", 2000, "red");
+                    }
+
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+
+                    errorFunc(`${errorCode}`, 3000, "red");
+
+                    return;
+                });
+
+        }
 
     } else {
-        // For Login
-        const errorEle = document.querySelectorAll(".login-form .error p");
-
-        errorEle[0].parentElement.classList.remove("invisible");
-        errorEle[1].parentElement.classList.remove("invisible");
-
-        errorEle[0].innerHTML = messages2.email;
-        errorEle[1].innerHTML = messages2.password;
-
-        const div = document.querySelectorAll(".password-eye-btn-div");
-
-        if (errorEle[0].innerHTML !== "") {
-            div[0].classList
-                .replace("translate-y-[-50%]", "translate-y-[-25%]")
-            div[0].classList.replace("top-[50%]", "top-[25%]");
-        } else {
-            div[0].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-            div[0].classList.replace("top-[25%]", "top-[50%]");
-        }
-
-        if (errorEle[1].innerHTML !== "") {
-            div[1].classList.replace("translate-y-[-50%]", "translate-y-[-25%]")
-            div[1].classList.replace("top-[50%]", "top-[25%]")
-        } else {
-            div[1].classList.replace("translate-y-[-25%]", "translate-y-[-50%]")
-            div[1].classList.replace("top-[25%]", "top-[50%]")
-        }
-
-        messages2.email = "";
-        messages2.password = "";
-        // For Login
+        errorFunc("Create Account First.", 1000, "red")
+        container.classList.add("check");
     }
+
 }
+
+// For FireBase Login

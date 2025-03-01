@@ -4,6 +4,41 @@
   font-family: "Poppins", serif;
 }
 
+.toggle-box-2 {
+  transition: all 0.6s ease-in-out;
+  transform: translateX(-100%);
+}
+
+.signIn-form {
+  transition: all 0.6s ease-in-out;
+  transform: translateX(100%);
+}
+
+.toggle-box-1 {
+  transition: all 0.6s ease-in-out;
+}
+.login-form {
+  transition: all 0.6s ease-in-out;
+}
+
+.main-container.check {
+  .toggle-box-1 {
+    transform: translateX(100%);
+  }
+  .login-form {
+    transform: translateX(-100%);
+  }
+  .toggle-box-2 {
+    transition: all 0.6s ease-in-out;
+    transform: translateX(0%);
+  }
+
+  .signIn-form {
+    transition: all 0.6s ease-in-out;
+    transform: translateX(0%);
+  }
+}
+
 @media (max-width: 520px) {
   .toggle-box-1 {
     border-radius: 0 !important;
